@@ -4,16 +4,14 @@ package com.gizasystems.observability;
 import io.micrometer.observation.Observation;
 import io.micrometer.observation.ObservationHandler;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.stereotype.Component;
 
 @Log4j2
-@Component
 public class PerformanceHandler implements ObservationHandler<Observation.Context> {
 
     @Override
     public void onStart(Observation.Context context) {
         log.info("execution started {}", context.getName());
-       context.put("time", System.currentTimeMillis());
+        context.put("time", System.currentTimeMillis());
     }
 
     @Override

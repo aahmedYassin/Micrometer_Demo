@@ -3,6 +3,7 @@ package com.gizasystems.controller;
 import com.gizasystems.dto.EmployeeDtoRequest;
 import com.gizasystems.dto.EmployeeDtoResponse;
 import com.gizasystems.service.EmployeeService;
+import io.micrometer.core.annotation.Timed;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -36,6 +37,8 @@ public class EmployeeController {
     }
 
     @GetMapping("/employees")
+    @Timed(value = "helloEndpoint")
+
     public ResponseEntity<List<EmployeeDtoResponse>> getEmployees() {
         return new ResponseEntity<>(employeeService.getEmployees(), HttpStatus.OK);
     }

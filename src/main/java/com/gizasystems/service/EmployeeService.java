@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Timer;
 import io.micrometer.observation.annotation.Observed;
 import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -16,6 +19,7 @@ import com.gizasystems.repository.EmployeeRepo;
 
 @Service
 @AllArgsConstructor
+//@Observed
 public class EmployeeService {
 
 
@@ -23,6 +27,9 @@ public class EmployeeService {
 
 
     private final EmployeeDataValidation employeeDataValidation;
+
+    private final MeterRegistry meterRegistry;
+
 
     private final ModelMapper modelMapper = new ModelMapper();
 
@@ -61,12 +68,17 @@ public class EmployeeService {
 
     @Observed(name = "get.employees")
     public List<EmployeeDtoResponse> getEmployees() {
+        Counter counter = meterRegistry.counter("ahmed.yassin.count");
+        Timer timer = meterRegistry.timer("ahmed.yassin.time");
+        counter.increment();
+        return timer.record(() -> {
+            List<EmployeeDtoResponse> employees = new ArrayList<>();
+            for (Employee employee : employeeRepo.findAll())
+                employees.add(modelMapper.map(employee, EmployeeDtoResponse.class));
 
-        List<EmployeeDtoResponse> employees = new ArrayList<>();
-        for (Employee employee : employeeRepo.findAll())
-            employees.add(modelMapper.map(employee, EmployeeDtoResponse.class));
+            return employees;
+        });
 
-        return employees;
     }
 
     @Observed(name = "delete.employeeByName")
@@ -104,7 +116,7 @@ public class EmployeeService {
         }
     }
 
-    @Observed(name = "get.employeeById")
+
     public EmployeeDtoResponse getEmployeeById(int id) {
 
         Optional<Employee> employee = employeeRepo.findById(id);
